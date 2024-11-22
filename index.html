@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deno REST Mock - Client</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 20px;
+    }
+    .user, .post {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Deno REST Mock API - Client</h1>
+
+  <h2>Users</h2>
+  <button id="fetchUsers">Fetch All Users</button>
+  <div id="users"></div>
+
+  <h2>Posts</h2>
+  <button id="fetchPosts">Fetch All Posts</button>
+  <div id="posts"></div>
+
+  <h2>Posts by User</h2>
+  <input type="number" id="userIdInput" placeholder="Enter User ID" />
+  <button id="fetchUserPosts">Fetch Posts by User</button>
+  <div id="userPosts"></div>
+
+  <script>
+    const API_BASE_URL = "http://localhost:4000";
+
+    // Fetch all users
+    document.getElementById("fetchUsers").addEventListener("click", async () => {
+      const response = await fetch(`${API_BASE_URL}/users`);
+      const users = await response.json();
+      const usersDiv = document.getElementById("users");
+      usersDiv.innerHTML = ""; // Clear previous results
+
+      users.forEach(user => {
+        const userDiv = document.createElement("div");
+        userDiv.className = "user";
+        userDiv.innerHTML = `<strong>${user.name}</strong> (${user.email})`;
+        usersDiv.appendChild(userDiv);
+      });
+    });
+
+    // Fetch all posts
+    document.getElementById("fetchPosts").addEventListener("click", async () => {
+      const response = await fetch(`${API_BASE_URL}/posts`);
+      const posts = await response.json();
+      const postsDiv = document.getElementById("posts");
+      postsDiv.innerHTML = ""; // Clear previous results
+
+      posts.forEach(post => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+        postDiv.innerHTML = `<strong>${post.title}</strong><br>${post.content}`;
+        postsDiv.appendChild(postDiv);
+      });
+    });
+
+    // Fetch posts by user ID
+    document.getElementById("fetchUserPosts").addEventListener("click", async () => {
+      const userId = document.getElementById("userIdInput").value;
+      if (!userId) {
+        alert("Please enter a User ID");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/posts`);
+      const userPosts = await response.json();
+      const userPostsDiv = document.getElementById("userPosts");
+      userPostsDiv.innerHTML = ""; // Clear previous results
+
+      if (userPosts.length === 0) {
+        userPostsDiv.innerHTML = `<p>No posts found for User ID ${userId}</p>`;
+        return;
+      }
+
+      userPosts.forEach(post => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+        postDiv.innerHTML = `<strong>${post.title}</strong><br>${post.content}`;
+        userPostsDiv.appendChild(postDiv);
+      });
+    });
+  </script>
+</body>
+</html>
